@@ -85,3 +85,71 @@ export class Coffee {
 
 - `nest g class common/dto/pagination-query.dto --no-spec`
 - offset 不传时就是 0 ，不要纠结 0 不是实数的问题
+
+```ts
+export class PaginationQueryDto {
+  @IsOptional()
+  @IsPositive()
+  limit: number;
+
+  @IsOptional()
+  @IsPositive()
+  offset: number;
+}
+```
+
+> `nestjs` 还真有点艺术感
+
+### Transactions
+
+![a3](images/WX20200824-112210.png)
+
+- `nest g class events/entities/event.entity --no-spec`
+
+```ts
+async recommendCoffee(coffee: Coffee) {
+  const queryRunner = this.connection.createQueryRunner();
+
+  await queryRunner.connect();
+  await queryRunner.startTransaction();
+
+  try {
+    coffee.recommendations++;
+
+    const recommendEvent = new Event();
+    recommendEvent.name = 'recommend_coffee';
+    recommendEvent.type = 'coffee';
+    recommendEvent.payload = { coffeeId: coffee.id };
+
+    await queryRunner.manager.save(coffee);
+    await queryRunner.manager.save(recommendEvent);
+
+    await queryRunner.commitTransaction();
+  } catch (err) {
+    await queryRunner.rollbackTransaction();
+  } finally {
+    await queryRunner.release();
+  }
+}
+```
+
+### Indexes
+
+```ts
+@Index(['name', 'type'])
+@Entity()
+export class Event {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  type: string;
+
+  @Index()
+  @Column()
+  name: string;
+
+  @Column('json')
+  payload: Record<string, any>;
+}
+```

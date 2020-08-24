@@ -18,6 +18,9 @@ export class Coffee {
   @Column()
   brand: string;
 
+  @Column({default: 0})
+  recommendations: number; //TODO 啥意思？
+
   @JoinTable()
   @ManyToMany(
     type => Flavor,

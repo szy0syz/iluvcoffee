@@ -26,3 +26,62 @@ app.useGlobalPipes(new ValidationPipe({
 - `npm i @nestjs/mapped-types`
   - `console.log(createCoffeeDto instanceof CreateCoffeeDto);`
   - 还能在控制器中任意转换查询参数
+
+### databse
+
+```yml
+version: "3"
+
+services:
+  db:
+    image: postgres:12
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: pass123
+```
+
+- `npm i @nestjs/typeorm typeorm pg`
+
+```ts
+// -------- app.module.ts
+@Module({
+  imports: [
+    CoffeesModule,
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: 'localhost',
+      port: 5432,
+      username: 'postgres',
+      password: 'pass123',
+      database: 'postgres',
+      autoLoadEntities: true,
+      synchronize: true,
+    }),
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+
+// -------- /src/coffees/entities/coffee.entity.ts
+// 算是一种绑定吧 TypeOrmModule 的 autoLoadEntities 可以识别
+import { Entity } from 'typeorm'
+
+@Entity('coffees') // ! -> sql table === 'coffees'
+export class Coffee {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  name: string;
+
+  @Column()
+  brand: string;
+
+  @Column('json', { nullable: true })
+  flavors: string[];
+}
+```
+
+![a1](images/WX20200824-094155.png)

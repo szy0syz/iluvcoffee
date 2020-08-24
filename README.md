@@ -153,3 +153,56 @@ export class Event {
   payload: Record<string, any>;
 }
 ```
+
+### Magrations
+
+```js
+module.exports = {
+  type: 'postgres',
+  host: 'localhost',
+  port: 5432,
+  username: 'postgres',
+  password: 'pass123',
+  database: 'postgres',
+  entities: ['dist/**/*.entity.js'],
+  migrations: ['dist/migrations/*.js'],
+  cli: {
+    migrationsDir: 'src/migrations',
+  },
+};
+```
+
+- 当新增、删除字段是则可以全自动处理
+  - 修改 entity 模型
+  - 删除 ./dist 文件夹
+  - 运行 `nest build`
+  - 执行 `npx typeorm migration:generate -n SchemaSync` 生成脚本
+  - 执行 `npx typeorm migration:run` 提交 commits
+
+- 当修改表字段的名称时需要特别处理
+  - `npx typeorm migration:create -n CoffeeRefactor`
+  - 执行修改 `refactor` 脚本
+  - 删除 ./dist 文件夹
+  - 运行 `nest build`
+  - 执行 `npx typeorm migration:generate -n SchemaSync` 生成脚本
+  - 执行 `npx typeorm migration:run` 提交 commits
+
+```ts
+export class CoffeeRefactor1598261655449 implements MigrationInterface {
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `ALTER TABLE "coffee" RENAME COLUMN "name" TO "title"`,
+    );
+  }
+
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `ALTER TABLE "coffee" RENAME COLUMN "title" TO "name"`,
+    );
+  }
+}
+```
+
+> 真不好监测字段名称变化，只能自己手动处理。
+
+### Dependency Injection

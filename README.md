@@ -14,11 +14,13 @@
   - 各种 dto 的验证开启
 
 ```ts
-app.useGlobalPipes(new ValidationPipe({
-  whitelist: true,
-  transform: true, // 开启 Payload 转换 Dto instance
-  forbidNonWhitelisted: true, // 强制验证 dto 属性正确
-}));
+app.useGlobalPipes(
+  new ValidationPipe({
+    whitelist: true,
+    transform: true, // 开启 Payload 转换 Dto instance
+    forbidNonWhitelisted: true, // 强制验证 dto 属性正确
+  }),
+);
 ```
 
 ### Autotransform Payloads to DTO instances
@@ -30,14 +32,14 @@ app.useGlobalPipes(new ValidationPipe({
 ### databse
 
 ```yml
-version: "3"
+version: '3'
 
 services:
   db:
     image: postgres:12
     restart: always
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       POSTGRES_PASSWORD: pass123
 ```
@@ -46,27 +48,11 @@ services:
 
 ```ts
 // -------- app.module.ts
-@Module({
-  imports: [
-    CoffeesModule,
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'pass123',
-      database: 'postgres',
-      autoLoadEntities: true,
-      synchronize: true,
-    }),
-  ],
-  controllers: [AppController],
-  providers: [AppService],
-})
-
-// -------- /src/coffees/entities/coffee.entity.ts
-// 算是一种绑定吧 TypeOrmModule 的 autoLoadEntities 可以识别
-import { Entity } from 'typeorm'
+import {
+  // -------- /src/coffees/entities/coffee.entity.ts
+  // 算是一种绑定吧 TypeOrmModule 的 autoLoadEntities 可以识别
+  Entity,
+} from 'typeorm';
 
 @Entity('coffees') // ! -> sql table === 'coffees'
 export class Coffee {
@@ -85,3 +71,12 @@ export class Coffee {
 ```
 
 ![a1](images/WX20200824-094155.png)
+
+### Create a Relation between two Entities
+
+![a2](images/WX20200824-101639.png)
+
+- `nest g class coffees/entities/flavor.entity --no-spec`
+
+- 在 N 张表级联时，手动在服务层 find\* 的函数中添加级联参数: `relations: ['flavors']`
+- model 层增加参数: `{ cascade: true }`  为了插入时用

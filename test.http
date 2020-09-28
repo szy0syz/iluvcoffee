@@ -1,0 +1,47 @@
+### REST Client ###
+
+@baseUrl = http://127.0.0.1:3000
+
+# @name signin
+POST {{baseUrl}}/public/signin HTTP/1.1
+Content-Type: application/json
+
+{
+    "phone": "13759440044",
+    "password": "8888"
+}
+
+### --------------------------------【token】存储
+@authToken = {{ signin.response.body.access_token }}
+
+
+
+
+
+### --------------------------------
+GET {{baseUrl}}/coffees
+
+### --------------------------------
+POST {{baseUrl}}/coffees
+Content-Type: application/json
+
+{
+  "name": "jerry1",
+  "brand": "b1",
+  "flavors": ["ff1", "ff2"]
+}
+
+### --------------------------------
+GET {{baseUrl}}/public/test1
+Content-Type: application/json
+
+### --------------------------------【七牛云】
+GET {{baseUrl}}/public/qiniu/getToken
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+### --------------------------------【菜单】查询当前用户的权限菜单
+GET {{baseUrl}}/public/menuTree
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+

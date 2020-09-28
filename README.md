@@ -81,10 +81,10 @@ export class Coffee {
 - 在 N 张表级联时，手动在服务层 find\* 的函数中添加级联参数: `relations: ['flavors']`
 - model 层增加参数: `{ cascade: true }`  为了插入时用
 
-### pagination
+### pagination 关于分页
 
 - `nest g class common/dto/pagination-query.dto --no-spec`
-- offset 不传时就是 0 ，不要纠结 0 不是实数的问题
+- offset 不传时就是 0 ，不要纠结 0 不是实数的问题了
 
 ```ts
 export class PaginationQueryDto {
